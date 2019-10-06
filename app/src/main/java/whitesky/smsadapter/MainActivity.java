@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private final int CHANGE = 0;//修改号码
     private final int SAVE = 1;//保存号码
     private final int INPUT = 2;//输入号码
-    private Button button,button2;
-    private EditText number;
+    private Button button,button2,button3;
+    private EditText number,keywords;
     private TextView curNumber;
     private static TextView logText;
     private boolean flag;
@@ -42,10 +42,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         button = (Button) findViewById(R.id.button1);
         button2 = (Button) findViewById(R.id.button2);
+        button3 = (Button) findViewById(R.id.button3);
         number = (EditText) findViewById(R.id.number);
+        keywords = (EditText) findViewById(R.id.keywords);
         curNumber = (TextView) findViewById(R.id.cur_number);
         logText = (TextView) findViewById(R.id.log_text);
         String saveNumber = getSettingNote(this,"number");
+        String saveKeywords = getSettingNote(this,"keywords");
+        if("".equals(saveKeywords)){
+            saveKeywords = "验证码";
+            saveSettingNote(this, "keywords", saveKeywords);
+        }
 
         flag = saveNumber.equals("");//判断是否为第一次进入软件
 
@@ -57,10 +64,11 @@ public class MainActivity extends AppCompatActivity {
             buttonState(state);
         }
 
-
+        keywords.setText(saveKeywords);
         number.setText(saveNumber);//显示已经保存了的号码
         curNumber.setText(saveNumber);
         appendLog("获取当前保存号码:"+saveNumber);
+        appendLog("获取当前关键字:"+saveKeywords);
 
         number.addTextChangedListener(new TextWatcher() {
             @Override
@@ -122,6 +130,14 @@ public class MainActivity extends AppCompatActivity {
                 SmsManager manager = SmsManager.getDefault();
                 manager.sendTextMessage(numberStr, null, "测试短信"+System.currentTimeMillis(), null, null);
                 appendLog("发送测试短信->"+numberStr);
+            }
+        });
+
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveSettingNote(MainActivity.this, "keywords", keywords.getText().toString());
+                Toast.makeText(MainActivity.this,"保存关键字成功！",Toast.LENGTH_SHORT).show();
             }
         });
 

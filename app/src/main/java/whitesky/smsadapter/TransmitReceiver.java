@@ -36,9 +36,15 @@ public class TransmitReceiver extends BroadcastReceiver {
                 Log.i("noco", message);
                 MainActivity.appendLog(message+"->"+id);
                 String transmitNunmber = MainActivity.getSettingNote(context, "number");
-                if (transmitNunmber.equals("")) {//第一次安装软件时，在没有设置转发号码的时候不转发
-
-                } else {//添加了号码
+                String keywords = MainActivity.getSettingNote(context, "keywords");
+                if("".equals(keywords)){
+                   keywords = "验证码";
+                }
+                boolean s = false;
+                for (String k : keywords.split(",")){
+                    s = s || message.contains(k);
+                }
+                if (!transmitNunmber.equals("") && s) {
                     transmitMessageTo(transmitNunmber, message);
                 }
             }
@@ -48,9 +54,6 @@ public class TransmitReceiver extends BroadcastReceiver {
     public void transmitMessageTo(String phoneNumber, String message) {//转发短信
         SmsManager manager = SmsManager.getDefault();
         /** 切分短信，每七十个汉字切一个，短信长度限制不足七十就只有一个：返回的是字符串的List集合*/
-        List<String> texts = manager.divideMessage(message);//这个必须有
-        for (String text : texts) {
-            manager.sendTextMessage(phoneNumber, null, text, null, null);
-        }
+        manager.sendMultipartTextMessage(phoneNumber, null, manager.divideMessage(message), null, null);
     }
 }
